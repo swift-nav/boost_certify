@@ -28,28 +28,28 @@ find_package (Threads)
 find_package(OpenSSL REQUIRED)
 
 
-add_library(core INTERFACE)
+add_library(certify INTERFACE)
 
-add_library(certify::core ALIAS core)
+add_library(Boost::certify ALIAS certify)
 
-target_compile_features(core INTERFACE cxx_std_11)
+target_compile_features(certify INTERFACE cxx_std_11)
 
-target_include_directories(core INTERFACE
+target_include_directories(certify INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
 
 if(MSVC)
-	target_link_libraries(core INTERFACE Crypt32.lib)
+	target_link_libraries(certify INTERFACE Crypt32.lib)
 endif()
 
 if(APPLE)
-    target_link_libraries(core INTERFACE "-framework CoreFoundation" "-framework Security")
-    set_target_properties(core PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
+    target_link_libraries(certify INTERFACE "-framework CoreFoundation" "-framework Security")
+    set_target_properties(certify PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 endif()
 
 target_link_libraries(
-    core
+    certify
     INTERFACE
         Boost::system
         Boost::filesystem
@@ -58,31 +58,33 @@ target_link_libraries(
         OpenSSL::SSL
         OpenSSL::Crypto)
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    "certifyConfigVersion.cmake"
-    COMPATIBILITY AnyNewerVersion)
+if (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+        "certifyConfigVersion.cmake"
+        COMPATIBILITY AnyNewerVersion)
 
-install(FILES
-            "netutilsConfig.cmake"
-            "${CMAKE_BINARY_DIR}/certifyConfigVersion.cmake"
-        DESTINATION lib/cmake/certify)
+    install(FILES
+                "netutilsConfig.cmake"
+                "${CMAKE_BINARY_DIR}/certifyConfigVersion.cmake"
+            DESTINATION lib/cmake/certify)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
-        DESTINATION include
-        FILES_MATCHING PATTERN "*.hpp")
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+            DESTINATION include
+            FILES_MATCHING PATTERN "*.hpp")
 
-install(TARGETS core
-        EXPORT certifyTargets
-        INCLUDES DESTINATION include)
+    install(TARGETS certify
+            EXPORT certifyTargets
+            INCLUDES DESTINATION include)
 
-install(EXPORT certifyTargets
-        FILE certifyTargets.cmake
-        NAMESPACE certify::
-        DESTINATION lib/cmake/certify)
+    install(EXPORT certifyTargets
+            FILE certifyTargets.cmake
+            NAMESPACE Boost::
+            DESTINATION lib/cmake/certify)
 
-include(CTest)
-if(BUILD_TESTING)
-    enable_testing()
-    add_subdirectory(tests)
-endif()
+    include(CTest)
+    if(BUILD_TESTING)
+        enable_testing()
+        add_subdirectory(tests)
+    endif()
+endif ()
