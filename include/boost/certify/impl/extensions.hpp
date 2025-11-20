@@ -2,6 +2,7 @@
 #define BOOST_CERTIFY_IMPL_EXTENSIONS_HPP
 
 #include <boost/certify/extensions.hpp>
+#include <boost/asio/ssl/error.hpp> // for boost::asio::error::get_ssl_category()
 
 namespace boost
 {

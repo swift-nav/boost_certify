@@ -1,0 +1,27 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "boost_certify",
+    hdrs = glob([
+        "include/**/*.hpp",
+        "include/**/*.ipp",
+    ]),
+    includes = ["include"],
+    linkopts = select({
+        "@platforms//os:macos": [
+            "-framework CoreFoundation",
+            "-framework Security",
+        ],
+        "@platforms//os:windows": [
+            "Crypt32.lib",
+        ],
+        "//conditions:default": [],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [
+        "@boost.asio",
+        "@boost.beast",
+        "@boost.filesystem",
+        "@grpc//:grpc++",
+    ],
+)
