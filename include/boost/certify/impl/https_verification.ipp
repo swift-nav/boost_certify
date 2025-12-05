@@ -4,6 +4,7 @@
 #include <boost/certify/https_verification.hpp>
 
 #include <boost/asio/ip/address.hpp>
+#include <boost/asio/ssl/error.hpp> // for boost::asio::error::get_ssl_category()
 #include <openssl/ssl.h>
 #include <openssl/x509_vfy.h>
 
